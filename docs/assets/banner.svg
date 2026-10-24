@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-label="Mira, a voice-first AI companion built with Atech">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0b1e"/>
+      <stop offset="1" stop-color="#160c2e"/>
+    </linearGradient>
+    <radialGradient id="g1" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ff3d9a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ff3d9a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#7c4dff" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#7c4dff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g3" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#00d4ff" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#00d4ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="g4" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffb13d" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ffb13d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff7ac0"/>
+      <stop offset="0.5" stop-color="#b69cff"/>
+      <stop offset="1" stop-color="#5fe3ff"/>
+    </linearGradient>
+    <linearGradient id="wave" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ff3d9a"/>
+      <stop offset="0.5" stop-color="#7c4dff"/>
+      <stop offset="1" stop-color="#00d4ff"/>
+    </linearGradient>
+    <style>
+      .bar { animation: pulse 1.6s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+      @keyframes pulse { 0%,100% { transform: scaleY(0.45); } 50% { transform: scaleY(1); } }
+      .dot { animation: spin 1.2s linear infinite; }
+      @keyframes spin { 0% { opacity: 1; } 60%,100% { opacity: 0.15; } }
+    </style>
+  </defs>
+
+  <rect width="1280" height="400" fill="url(#bg)"/>
+  <circle cx="180" cy="80" r="260" fill="url(#g1)"/>
+  <circle cx="1080" cy="330" r="300" fill="url(#g2)"/>
+  <circle cx="900" cy="40" r="220" fill="url(#g3)"/>
+  <circle cx="420" cy="390" r="200" fill="url(#g4)"/>
+
+  <!-- status ring, like port 4 on the device -->
+  <g transform="translate(1040 150)">
+    <circle r="78" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="2"/>
+    <g fill="#5fe3ff">
+      <circle class="dot" cx="0" cy="-56" r="9" style="animation-delay:0s"/>
+      <circle class="dot" cx="39.6" cy="-39.6" r="9" style="animation-delay:0.15s"/>
+      <circle class="dot" cx="56" cy="0" r="9" style="animation-delay:0.3s"/>
+      <circle class="dot" cx="39.6" cy="39.6" r="9" style="animation-delay:0.45s"/>
+      <circle class="dot" cx="0" cy="56" r="9" style="animation-delay:0.6s"/>
+      <circle class="dot" cx="-39.6" cy="39.6" r="9" style="animation-delay:0.75s"/>
+      <circle class="dot" cx="-56" cy="0" r="9" style="animation-delay:0.9s"/>
+      <circle class="dot" cx="-39.6" cy="-39.6" r="9" style="animation-delay:1.05s"/>
+    </g>
+    <circle r="22" fill="#ff3d9a" fill-opacity="0.85"/>
+    <circle r="22" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="2"/>
+  </g>
+
+  <text x="90" y="175" font-family="-apple-system, 'Segoe UI', Inter, Helvetica, Arial, sans-serif" font-size="118" font-weight="800" letter-spacing="-3" fill="url(#title)">Mira</text>
+  <text x="94" y="228" font-family="-apple-system, 'Segoe UI', Inter, Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#ffffff">A voice-first AI companion that lives in a tiny device.</text>
+  <text x="94" y="268" font-family="-apple-system, 'Segoe UI', Inter, Helvetica, Arial, sans-serif" font-size="21" fill="#c9c3e6">Talks, listens, reminds you of your medicine, and checks in on how you feel.</text>
+
+  <!-- voice wave -->
+  <g transform="translate(94 320)" fill="url(#wave)">
+    <rect class="bar" x="0"   y="-14" width="8" height="28" rx="4" style="animation-delay:0s"/>
+    <rect class="bar" x="16"  y="-24" width="8" height="48" rx="4" style="animation-delay:0.1s"/>
+    <rect class="bar" x="32"  y="-34" width="8" height="68" rx="4" style="animation-delay:0.2s"/>
+    <rect class="bar" x="48"  y="-20" width="8" height="40" rx="4" style="animation-delay:0.3s"/>
+    <rect class="bar" x="64"  y="-30" width="8" height="60" rx="4" style="animation-delay:0.4s"/>
+    <rect class="bar" x="80"  y="-16" width="8" height="32" rx="4" style="animation-delay:0.5s"/>
+    <rect class="bar" x="96"  y="-26" width="8" height="52" rx="4" style="animation-delay:0.6s"/>
+    <rect class="bar" x="112" y="-12" width="8" height="24" rx="4" style="animation-delay:0.7s"/>
+  </g>
+  <text x="230" y="328" font-family="-apple-system, 'Segoe UI', Inter, Helvetica, Arial, sans-serif" font-size="19" font-weight="600" fill="#ffffff" fill-opacity="0.9">Built with <tspan fill="#ffb13d">Atech</tspan>  ·  ElevenLabs  ·  Claude  ·  ESP32-S3</text>
+</svg>

@@ -1,0 +1,81 @@
+{
+  "_comment": "Webhook tools for the ElevenLabs agent. Replace https://YOUR-TUNNEL.trycloudflare.com with the URL start.sh prints. Each tool body is the tool_config for POST /v1/convai/tools.",
+  "tools": [
+    {
+      "type": "webhook",
+      "name": "medication_status",
+      "description": "Check if medicine is due right now, when it was last taken, and the next scheduled time. Use when they ask 'did I take my pills?' or about their medicine.",
+      "api_schema": { "url": "https://YOUR-TUNNEL.trycloudflare.com/tools/medication_status", "method": "GET" },
+      "response_timeout_secs": 10
+    },
+    {
+      "type": "webhook",
+      "name": "log_medication",
+      "description": "Record that the person just took their medicine (turns the red light off). Use only when they clearly say they took it.",
+      "api_schema": { "url": "https://YOUR-TUNNEL.trycloudflare.com/tools/log_medication", "method": "GET" },
+      "response_timeout_secs": 10
+    },
+    {
+      "type": "webhook",
+      "name": "log_mood",
+      "description": "Save how the person feels, after they tell you. Call it once per conversation, and again if their mood clearly changes.",
+      "pre_tool_speech": "off",
+      "api_schema": {
+        "url": "https://YOUR-TUNNEL.trycloudflare.com/tools/log_mood",
+        "method": "POST",
+        "request_body_schema": {
+          "type": "object",
+          "required": ["mood", "score"],
+          "properties": {
+            "mood": { "type": "string", "description": "One or two words, e.g. happy, calm, tired, lonely, anxious, sad, in pain" },
+            "score": { "type": "integer", "description": "1 = very bad, 2 = bad, 3 = okay, 4 = good, 5 = very good" },
+            "note": { "type": "string", "description": "Short note in their own words, e.g. 'misses her daughter'" }
+          }
+        }
+      },
+      "response_timeout_secs": 10
+    },
+    {
+      "type": "webhook",
+      "name": "room",
+      "description": "Get the current room temperature and humidity from the sensor in the device.",
+      "api_schema": { "url": "https://YOUR-TUNNEL.trycloudflare.com/tools/room", "method": "GET" },
+      "response_timeout_secs": 10
+    },
+    {
+      "type": "webhook",
+      "name": "show_on_screen",
+      "description": "Show a short reminder (max ~8 words) on the device's small screen, e.g. 'Call Anna at 5'.",
+      "pre_tool_speech": "off",
+      "api_schema": {
+        "url": "https://YOUR-TUNNEL.trycloudflare.com/tools/show_on_screen",
+        "method": "POST",
+        "request_body_schema": {
+          "type": "object",
+          "required": ["text"],
+          "properties": { "text": { "type": "string", "description": "The short text to show" } }
+        }
+      },
+      "response_timeout_secs": 10
+    },
+    {
+      "type": "webhook",
+      "name": "send_message",
+      "description": "Send a text message to one of the person's contacts, e.g. 'send a text to Gustav saying I'll be late'. Call it as soon as you know who to send it to and what to say.",
+      "pre_tool_speech": "off",
+      "api_schema": {
+        "url": "https://YOUR-TUNNEL.trycloudflare.com/tools/send_message",
+        "method": "POST",
+        "request_body_schema": {
+          "type": "object",
+          "required": ["recipient", "message"],
+          "properties": {
+            "recipient": { "type": "string", "description": "Who the message is for, e.g. Gustav" },
+            "message": { "type": "string", "description": "The message text, in the person's own words" }
+          }
+        }
+      },
+      "response_timeout_secs": 10
+    }
+  ]
+}
