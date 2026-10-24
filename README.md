@@ -108,7 +108,7 @@ The details are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ### 1. Install
 ```bash
-git clone https://github.com/tboy46156/mira-ai-companion.git
+git clone https://github.com/poolmoot/mira-ai-companion.git
 cd mira-ai-companion
 pip install atech fastapi "uvicorn[standard]"
 ```
