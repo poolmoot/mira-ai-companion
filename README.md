@@ -53,7 +53,7 @@ Under the hood it's an **edge AI device with real-time two-way audio streaming, 
 ## 🧠 How it works
 
 ```mermaid
-flowchart LR
+flowchart TB
     U((🧑 You)) -- voice --> B
     subgraph B["📟 Atech board · ESP32-S3"]
         MIC[🎙️ Mic] --> V[Voice link<br/>C++]
