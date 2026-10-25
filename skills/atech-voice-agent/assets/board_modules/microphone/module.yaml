@@ -1,0 +1,64 @@
+id: microphone
+name: "I2S MEMS Microphone (ICS-43434) + hands-free voice assistant"
+category: audio
+interface: gpio
+size: 2
+description: |
+  The bundled microphone plus the Atech voice assistant: WiFi straight to an
+  ElevenLabs agent, always-on listening, agent replies on the speaker. Requires a
+  speaker module with instance `spk`, listed BEFORE this module in
+  project.yaml. Credentials live in voice_config.h.
+
+driver:
+  header: microphone.h
+  source: microphone.cpp
+  class_name: Microphone
+
+templates:
+  # Constructor is (lrPin, wsPin, sckPin, sdPin), same as the bundled module.
+  globals: |
+    #include "voice_config.h"
+    #include "voice_assistant.h"
+    #include "elevenlabs_link.h"
+    Microphone {{ instance }}({{ pin_a }}, {{ pin_b }}, {{ pin_a2 }}, {{ pin_b2 }});
+    ElevenLabsLink wifi(VOICE_WIFI_SSID, VOICE_WIFI_PASSWORD, VOICE_AGENT_ID);
+    VoiceAssistant voice(&{{ instance }}, &spk, &wifi);
+  setup: |
+    wsFrameBuffer();   // reserve the 48 KB frame buffer while the heap is still in one piece
+    {{ instance }}.begin();
+    wifi.connect();
+    voice.begin();
+    voice.setHandsFree(VOICE_HANDS_FREE, VOICE_VAD_THRESHOLD);
+    wifi.onBinary([](const uint8_t* data, size_t len) { voice.handleAudio(data, len); });
+    // Read the next frame while at least ~0.4 s of the ~1 s playback buffer is free
+    wifi.onCanReceive([]() { return voice.bufferedAudioSamples() < 16384 - 6400; });
+    spk.setVolume(VOICE_SPEAKER_VOLUME);
+    wifi.onInternalMessage([](const char* action, const char* value) {
+      if (strcmp(action, "voice_state") == 0) { voice.handleVoiceState(value); return true; }
+      return false;
+    });
+  loop: |
+    wifi.maintain();
+    voice.update();
+    static unsigned long {{ instance }}_last = 0;
+    if (millis() - {{ instance }}_last >= 250) {
+      {{ instance }}_last = millis();
+      Serial.print("{\"type\":\"event\",\"payload\":{\"event_type\":\"sensor\",\"key\":\"{{ instance }}_level\",\"value\":");
+      Serial.print({{ instance }}.getSoundLevel());
+      Serial.println(",\"source\":\"microphone\"}}");
+    }
+
+events:
+  - key: "{{ instance }}_level"
+    type: sensor
+    value_type: int
+    description: "Current RMS sound level, 0-32767. Emitted every 250 ms. Use it to tune VOICE_VAD_THRESHOLD."
+
+actions: []
+lib_deps:
+  - "bblanchon/ArduinoJson"
+
+usage: |
+  // `voice` (VoiceAssistant) and `wifi` (AtechWiFi) are globals.
+  if (voice.isAgentSpeaking()) { /* the agent is talking */ }
+  if (voice.isSessionActive()) { /* connected to the agent */ }

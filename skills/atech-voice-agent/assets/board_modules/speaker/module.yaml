@@ -1,0 +1,92 @@
+id: speaker
+name: "I2S Speaker (MAX98357A)"
+category: audio
+interface: gpio
+size: 2
+description: |
+  3W Class-D I2S audio amplifier (MAX98357A) for tones, chords, and full
+  melodies. Spans TWO adjacent ports — placement requires an adjacent pair
+  like [1, 2] / [3, 4] (8-port) or [1, 2] … [13, 14] (14-port). Audio plays
+  in a background FreeRTOS task on Core 0, so the main loop never blocks. The
+  RTTTL parser lets you play ringtone-style melody strings with a single call.
+
+driver:
+  header: speaker.h
+  source: speaker.cpp
+  class_name: Speaker
+
+templates:
+  # Primary port: Line A = LRCLK (pin_a), Line B = BCLK (pin_b).
+  # Secondary port: Line B = DIN (pin_b2). Constructor is (bclk, lrclk, dout).
+  globals: |
+    Speaker {{ instance }}({{ pin_b }}, {{ pin_a }}, {{ pin_b2 }});
+  setup: |
+    {{ instance }}.begin();
+    {{ instance }}.setVolume(0.4f);   // 1.0 clips the MAX98357A — start gentle
+  loop: ""
+
+# Actions a host can send (`atech send` / board.send); the generated firmware
+# runs each handler. From your own `code:` block, call the methods below directly.
+actions:
+  - key: "{{ instance }}_play_rtttl"
+    value_type: string
+    description: 'RTTTL melody string, e.g. "tune:d=4,o=5,b=140:c,e,g,2c6". Plays in the background.'
+    handler: |
+      {{ instance }}.playRTTTL(value.c_str());
+  - key: "{{ instance }}_set_volume"
+    value_type: float
+    description: "Volume 0.0 (silent) to 1.0 (max). 0.3-0.5 is comfortable; 1.0 clips."
+    handler: |
+      {{ instance }}.setVolume(constrain(value.toFloat(), 0.0f, 1.0f));
+  - key: "{{ instance }}_stop"
+    value_type: "null"
+    description: "Stop any sound immediately."
+    handler: |
+      {{ instance }}.stop();
+  - key: "{{ instance }}_play_pcm"
+    value_type: string
+    description: >
+      Base64-encoded 16-bit mono PCM at 16 kHz, at most ~3000 base64 characters per
+      action (lines are capped at 4096). The host decodes an MP3/WAV, resamples to
+      16 kHz mono, and sends chunks. Blocks until the chunk has played.
+    handler: |
+      {{ instance }}.playPCMBase64(value.c_str());
+
+events: []
+lib_deps: []
+
+usage: |
+  // Public API of Speaker — the instance is `{{ instance }}`.
+  // Audio runs in a background task: every call below returns immediately.
+  // begin() + setVolume(0.4f) already ran in setup(); don't play on boot.
+  //
+  // NOTE_* frequency constants are provided by speaker.h, octaves 3-6:
+  //   NOTE_C4, NOTE_CS4 (C#), NOTE_D4 ... NOTE_B4, NOTE_C5 ... NOTE_B6, NOTE_REST
+  // Comfortable range is NOTE_C4..NOTE_B5 (~260-990 Hz). Above NOTE_C6 gets piercing.
+
+  // --- single tone: one sine wave, auto-stops after durationMs ---
+  {{ instance }}.playTone(NOTE_A4, 200);             // 440 Hz for 200 ms
+  {{ instance }}.playTone(880, 50);                  // raw Hz also fine
+
+  // --- melodies: call playNote() back-to-back (15% gap between notes) ---
+  {{ instance }}.playNote(NOTE_C5, 90);              // success motif:
+  {{ instance }}.playNote(NOTE_E5, 90);              //   C - E - G
+  {{ instance }}.playNote(NOTE_G5, 120);
+
+  // --- chords: up to 6 simultaneous frequencies ---
+  float triad[] = { NOTE_C4, NOTE_E4, NOTE_G4 };
+  {{ instance }}.playChord(triad, 3, 400);
+
+  // --- RTTTL: play a whole ringtone/jingle from one string (non-blocking) ---
+  {{ instance }}.playRTTTL("scale:d=4,o=5,b=160:c,d,e,f,g,a,b,2c6");
+
+  // --- control ---
+  {{ instance }}.setVolume(0.5f);                    // 0.0 .. 1.0 (1.0 clips)
+  if ({{ instance }}.isPlaying()) { /* still sounding */ }
+  {{ instance }}.stop();                             // silence immediately
+
+  // GUIDELINES (important for good-sounding firmware):
+  //  - Prefer short 2-4 note playNote() motifs over bare sustained tones.
+  //  - Only play in response to events; never call playTone() unguarded in loop().
+  //  - Do NOT play on boot. Keep tone durations <= ~2000 ms.
+  //  - Never use Arduino tone()/noTone() — they don't drive I2S.

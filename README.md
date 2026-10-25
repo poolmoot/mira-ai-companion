@@ -136,6 +136,34 @@ The first build downloads the ESP32 toolchain (~2.4 GB, once). When the light on
 
 > No board yet? Run `python3 hub/hub.py --fake` to get the full API without hardware, and build the dashboard against it.
 
+## 🧩 Make your own voice agent: the Claude skill
+
+I turned everything I learned building Mira into a **Claude skill**: [`skills/atech-voice-agent`](skills/atech-voice-agent). Anyone with an Atech kit can get their own talking agent by answering a few questions, and skip the debugging I went through.
+
+Claude asks you:
+- what your agent should be called and what it's for
+- how to wake it: **say its name**, **always listening**, or **push a button**
+- where it runs: **on the board** over WiFi, or **through your computer** over USB
+- which ports your speaker and microphone are in
+
+Then it creates the ElevenLabs agent (with the ElevenLabs connector, or by walking you through the dashboard), generates and flashes the Atech project, and checks that it hears and answers. Every fix from Mira is already built in: mic gain, μ-law upload, memory-safe audio frames, self-healing reconnects, echo muting.
+
+**Install** (Claude Code):
+```bash
+git clone https://github.com/poolmoot/mira-ai-companion.git
+cp -R mira-ai-companion/skills/atech-voice-agent ~/.claude/skills/
+```
+Then tell Claude: *"I have an Atech kit and want my own voice assistant."*
+
+| Tested | Status |
+|---|---|
+| Board mode drivers (same code that runs Mira) | ✅ running on real hardware |
+| Generator output: board mode (name / button), PC mode | ✅ compiles |
+| PC mode with the computer's mic and speakers | ✅ talked to a test agent |
+| Creating the agent with the ElevenLabs connector | ✅ |
+| A generated board-mode project flashed onto a board | ⏳ not yet |
+| PC mode playing the agent's voice on the board's speaker | ⏳ not yet |
+
 ## 📊 Build a dashboard on top
 
 The hub exposes a REST API plus a live WebSocket feed: medicine log, mood trend, messages, room climate and device state. [docs/DASHBOARD_BRIEF.md](docs/DASHBOARD_BRIEF.md) is a ready-to-paste brief for a coding agent, and [docs/openapi.json](docs/openapi.json) is the full schema.
@@ -150,6 +178,7 @@ The hub exposes a REST API plus a live WebSocket feed: medicine log, mood trend,
 │       └── st7735_tft/    screen driver with a 1-bit canvas
 ├── hub/                   FastAPI hub: board bridge, schedule, SQLite, agent tools, live API
 ├── elevenlabs/            Mira's prompt, tool definitions and voice settings
+├── skills/atech-voice-agent/  Claude skill: build your own voice agent on any Atech board
 ├── docs/                  architecture, API schema, dashboard brief
 └── start.sh               one command: hub + public tunnel
 ```
